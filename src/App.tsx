@@ -41,10 +41,13 @@ export default function App() {
       provider: 'google',
       options: {
         redirectTo: window.location.origin,
+        queryParams: {
+          prompt: 'select_account',
+        },
       },
     })
   }
-
+  
   const handleLogout = () => supabase.auth.signOut()
 
   const handleSubmit = async (e: React.FormEvent) => {
