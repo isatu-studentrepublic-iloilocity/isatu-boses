@@ -24,7 +24,7 @@ export default function App() {
   const checkUserDomain = async (authUser: any) => {
     if (authUser?.email) {
       const domain = authUser.email.split('@')[1]?.toLowerCase()
-      const validDomains = ['isatu.edu.ph', 'student.isatu.edu.ph']
+      const validDomains = ['students.isatu.edu.ph']
 
       if (!validDomains.includes(domain)) {
         await supabase.auth.signOut()
