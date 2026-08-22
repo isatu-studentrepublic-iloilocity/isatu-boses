@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef} from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { supabase } from './supabaseClient'
 
 export default function App() {
@@ -9,8 +9,11 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
+  // Safety flag to prevent infinite alert loops
+  const isAlertingRef = useRef(false)
+
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       const authUser = session?.user ?? null
 
       if (authUser?.email) {
@@ -18,15 +21,20 @@ export default function App() {
         const validDomains = ['isatu.edu.ph', 'student.isatu.edu.ph', 'students.isatu.edu.ph']
 
         if (!validDomains.includes(domain)) {
-          // Immediately sign out and clear session
+          // 1. Wipe OAuth tokens from address bar to break reload loops
+          if (window.location.hash || window.location.search) {
+            window.history.replaceState(null, '', window.location.pathname)
+          }
+
+          // 2. Clear authentication session
           await supabase.auth.signOut()
           localStorage.clear()
           setUser(null)
 
-          // Show alert only once
+          // 3. Trigger alert once
           if (!isAlertingRef.current) {
             isAlertingRef.current = true
-            alert(`Access restricted for ${authUser.email}. Please select an official ISAT U account.`)
+            alert(`Access restricted for ${authUser.email}. Please use an official ISAT U account.`)
             setTimeout(() => {
               isAlertingRef.current = false
             }, 1000)
@@ -40,22 +48,6 @@ export default function App() {
 
     return () => subscription.unsubscribe()
   }, [])
-  
-  const checkUserDomain = async (authUser: any) => {
-    if (authUser?.email) {
-      const domain = authUser.email.split('@')[1]?.toLowerCase()
-      const validDomains = ['students.isatu.edu.ph']
-
-      if (!validDomains.includes(domain)) {
-        await supabase.auth.signOut()
-        localStorage.clear()
-        setUser(null)
-        alert(`Access restricted for ${authUser.email}. Please use an official ISAT U account.`)
-        return
-      }
-    }
-    setUser(authUser)
-  }
 
   const handleGoogleLogin = async () => {
     await supabase.auth.signInWithOAuth({
@@ -105,9 +97,27 @@ export default function App() {
     <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', fontFamily: "'Inter', system-ui, sans-serif", color: '#334155', paddingBottom: '40px' }}>
       
       {/* Top Banner Header */}
-      <header style={{ backgroundColor: '#0F172A', borderBottom: '4px solid #D97706', padding: '24px 20px', textAlign: 'center', color: '#FFFFFF', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
-        <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 800, letterSpacing: '1px' }}>ISAT U BOSES</h1>
-        <p style={{ margin: '6px 0 0', color: '#94A3B8', fontSize: '14px' }}>Official Student Voice & Feedback Platform</p>
+      <header style={{ 
+        backgroundColor: '#0F172A', 
+        borderBottom: '4px solid #D97706', 
+        padding: '20px', 
+        color: '#FFFFFF', 
+        boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' 
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+          <img 
+            src="/logo.png" 
+            alt="ISAT U Logo" 
+            style={{ width: '42px', height: '42px', objectFit: 'contain' }} 
+            onError={(e) => { (e.target as HTMLElement).style.display = 'none' }}
+          />
+          <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 800, letterSpacing: '1px' }}>
+            ISAT U BOSES
+          </h1>
+        </div>
+        <p style={{ margin: '6px 0 0', color: '#94A3B8', fontSize: '14px', textAlign: 'center' }}>
+          Official Student Voice & Feedback Platform
+        </p>
       </header>
 
       {/* Main Container */}
@@ -164,91 +174,91 @@ export default function App() {
             </div>
 
             <form onSubmit={handleSubmit}>
-  
-  {/* 1. TEXTAREA BLOCK */}
-  <div style={{ marginBottom: '20px' }}>
-    <label style={{ display: 'block', fontWeight: 600, fontSize: '14px', marginBottom: '8px', color: '#0F172A' }}>
-      Your Student Insight / Concern *
-    </label>
-    <textarea
-      rows={5}
-      style={{
-        width: '100%',
-        padding: '12px',
-        borderRadius: '8px',
-        border: '1px solid #CBD5E1',
-        fontSize: '14px',
-        backgroundColor: '#FFFFFF',
-        color: '#000000',
-        boxSizing: 'border-box',
-        fontFamily: 'inherit'
-      }}
-      value={content}
-      onChange={(e) => setContent(e.target.value)}
-      placeholder="Describe your suggestion, concern, or feedback in detail..."
-      required
-    />
-  </div>
+              
+              {/* Textarea */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '14px', marginBottom: '8px', color: '#0F172A' }}>
+                  Your Student Insight / Concern *
+                </label>
+                <textarea
+                  rows={5}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #CBD5E1',
+                    fontSize: '14px',
+                    backgroundColor: '#FFFFFF',
+                    color: '#000000',
+                    boxSizing: 'border-box',
+                    fontFamily: 'inherit'
+                  }}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Describe your suggestion, concern, or feedback in detail..."
+                  required
+                />
+              </div>
 
-  {/* 2. SELECT DROPDOWN BLOCK */}
-  <div style={{ marginBottom: '20px' }}>
-    <label style={{ display: 'block', fontWeight: 600, fontSize: '14px', marginBottom: '8px', color: '#0F172A' }}>
-      Priority Level *
-    </label>
-    <select
-      value={priority}
-      onChange={(e) => setPriority(e.target.value)}
-      style={{
-        width: '100%',
-        padding: '10px 12px',
-        borderRadius: '8px',
-        border: '1px solid #CBD5E1',
-        fontSize: '14px',
-        backgroundColor: '#FFFFFF',
-        color: '#000000',
-        cursor: 'pointer'
-      }}
-    >
-      <option value="Low" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>Low - General Feedback / Suggestion</option>
-      <option value="Medium" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>Medium - Issue Needing Attention</option>
-      <option value="High" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>High - Urgent / Critical Concern</option>
-    </select>
-  </div>
+              {/* Priority Select */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '14px', marginBottom: '8px', color: '#0F172A' }}>
+                  Priority Level *
+                </label>
+                <select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #CBD5E1',
+                    fontSize: '14px',
+                    backgroundColor: '#FFFFFF',
+                    color: '#000000',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <option value="Low" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>Low - General Feedback / Suggestion</option>
+                  <option value="Medium" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>Medium - Issue Needing Attention</option>
+                  <option value="High" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>High - Urgent / Critical Concern</option>
+                </select>
+              </div>
 
-  {/* Anonymous Checkbox */}
-  <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-    <input
-      type="checkbox"
-      id="anonCheck"
-      checked={isAnonymous}
-      onChange={(e) => setIsAnonymous(e.target.checked)}
-      style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#0F172A' }}
-    />
-    <label htmlFor="anonCheck" style={{ fontSize: '14px', color: '#475569', cursor: 'pointer', userSelect: 'none' }}>
-      Submit anonymously (Hides your identity from admins)
-    </label>
-  </div>
+              {/* Anonymous Checkbox */}
+              <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input
+                  type="checkbox"
+                  id="anonCheck"
+                  checked={isAnonymous}
+                  onChange={(e) => setIsAnonymous(e.target.checked)}
+                  style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#0F172A' }}
+                />
+                <label htmlFor="anonCheck" style={{ fontSize: '14px', color: '#475569', cursor: 'pointer', userSelect: 'none' }}>
+                  Submit anonymously (Hides your identity from admins)
+                </label>
+              </div>
 
-  {/* Submit Button */}
-  <button
-    type="submit"
-    disabled={loading}
-    style={{
-      width: '100%',
-      backgroundColor: loading ? '#94A3B8' : '#0F172A',
-      color: '#FFFFFF',
-      padding: '12px',
-      borderRadius: '8px',
-      border: 'none',
-      fontSize: '15px',
-      fontWeight: 600,
-      cursor: loading ? 'not-allowed' : 'pointer',
-      transition: 'background-color 0.2s'
-    }}
-  >
-    {loading ? 'Submitting...' : 'Submit Insight'}
-  </button>
-</form>
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  backgroundColor: loading ? '#94A3B8' : '#0F172A',
+                  color: '#FFFFFF',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  transition: 'background-color 0.2s'
+                }}
+              >
+                {loading ? 'Submitting...' : 'Submit Insight'}
+              </button>
+            </form>
 
             {/* Response Alerts */}
             {message && (
