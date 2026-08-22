@@ -144,72 +144,91 @@ export default function App() {
             </div>
 
             <form onSubmit={handleSubmit}>
-              
-              {/* Insight Text Area */}
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontWeight: 600, fontSize: '14px', marginBottom: '8px', color: '#0F172A' }}>
-                  Your Student Insight / Concern *
-                </label>
-                <textarea
-                  rows={5}
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #CBD5E1', fontSize: '14px', boxSizing: 'border-box', outline: 'none', fontFamily: 'inherit' }}
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="Describe your suggestion, concern, or feedback in detail..."
-                  required
-                />
-              </div>
+  
+  {/* 1. TEXTAREA BLOCK */}
+  <div style={{ marginBottom: '20px' }}>
+    <label style={{ display: 'block', fontWeight: 600, fontSize: '14px', marginBottom: '8px', color: '#0F172A' }}>
+      Your Student Insight / Concern *
+    </label>
+    <textarea
+      rows={5}
+      style={{
+        width: '100%',
+        padding: '12px',
+        borderRadius: '8px',
+        border: '1px solid #CBD5E1',
+        fontSize: '14px',
+        backgroundColor: '#FFFFFF',
+        color: '#000000',
+        boxSizing: 'border-box',
+        fontFamily: 'inherit'
+      }}
+      value={content}
+      onChange={(e) => setContent(e.target.value)}
+      placeholder="Describe your suggestion, concern, or feedback in detail..."
+      required
+    />
+  </div>
 
-              {/* Priority Dropdown */}
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontWeight: 600, fontSize: '14px', marginBottom: '8px', color: '#0F172A' }}>
-                  Priority Level *
-                </label>
-                <select
-                  value={priority}
-                  onChange={(e) => setPriority(e.target.value)}
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #CBD5E1', fontSize: '14px', backgroundColor: '#FFFFFF', cursor: 'pointer' }}
-                >
-                  <option value="Low">Low - General Feedback / Suggestion</option>
-                  <option value="Medium">Medium - Issue Needing Attention</option>
-                  <option value="High">High - Urgent / Critical Concern</option>
-                </select>
-              </div>
+  {/* 2. SELECT DROPDOWN BLOCK */}
+  <div style={{ marginBottom: '20px' }}>
+    <label style={{ display: 'block', fontWeight: 600, fontSize: '14px', marginBottom: '8px', color: '#0F172A' }}>
+      Priority Level *
+    </label>
+    <select
+      value={priority}
+      onChange={(e) => setPriority(e.target.value)}
+      style={{
+        width: '100%',
+        padding: '10px 12px',
+        borderRadius: '8px',
+        border: '1px solid #CBD5E1',
+        fontSize: '14px',
+        backgroundColor: '#FFFFFF',
+        color: '#000000',
+        cursor: 'pointer'
+      }}
+    >
+      <option value="Low" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>Low - General Feedback / Suggestion</option>
+      <option value="Medium" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>Medium - Issue Needing Attention</option>
+      <option value="High" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>High - Urgent / Critical Concern</option>
+    </select>
+  </div>
 
-              {/* Anonymous Checkbox */}
-              <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input
-                  type="checkbox"
-                  id="anonCheck"
-                  checked={isAnonymous}
-                  onChange={(e) => setIsAnonymous(e.target.checked)}
-                  style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#0F172A' }}
-                />
-                <label htmlFor="anonCheck" style={{ fontSize: '14px', color: '#475569', cursor: 'pointer', userSelect: 'none' }}>
-                  Submit anonymously (Hides your identity from admins)
-                </label>
-              </div>
+  {/* Anonymous Checkbox */}
+  <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+    <input
+      type="checkbox"
+      id="anonCheck"
+      checked={isAnonymous}
+      onChange={(e) => setIsAnonymous(e.target.checked)}
+      style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#0F172A' }}
+    />
+    <label htmlFor="anonCheck" style={{ fontSize: '14px', color: '#475569', cursor: 'pointer', userSelect: 'none' }}>
+      Submit anonymously (Hides your identity from admins)
+    </label>
+  </div>
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                style={{
-                  width: '100%',
-                  backgroundColor: loading ? '#94A3B8' : '#0F172A',
-                  color: '#FFFFFF',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  border: 'none',
-                  fontSize: '15px',
-                  fontWeight: 600,
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
-              >
-                {loading ? 'Submitting...' : 'Submit Insight'}
-              </button>
-            </form>
+  {/* Submit Button */}
+  <button
+    type="submit"
+    disabled={loading}
+    style={{
+      width: '100%',
+      backgroundColor: loading ? '#94A3B8' : '#0F172A',
+      color: '#FFFFFF',
+      padding: '12px',
+      borderRadius: '8px',
+      border: 'none',
+      fontSize: '15px',
+      fontWeight: 600,
+      cursor: loading ? 'not-allowed' : 'pointer',
+      transition: 'background-color 0.2s'
+    }}
+  >
+    {loading ? 'Submitting...' : 'Submit Insight'}
+  </button>
+</form>
 
             {/* Response Alerts */}
             {message && (
