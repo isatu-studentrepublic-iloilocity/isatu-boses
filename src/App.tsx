@@ -90,7 +90,14 @@ export default function App() {
       setMessage({ type: 'error', text: `Error: ${error.message}` })
     } else {
       setMessage({ type: 'success', text: 'Your insight has been submitted successfully!' })
+      
+      // 1. Clear input state
       setContent('')
+      
+      // 2. Clear saved draft from localStorage
+      localStorage.removeItem('draft_content')
+      
+      // 3. Reset form selections
       setPriority('Low')
       setIsAnonymous(false)
     }
@@ -236,94 +243,95 @@ export default function App() {
             </div>
 
             <form onSubmit={handleSubmit}>
-              
-              {/* Textarea */}
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontWeight: 600, fontSize: '14px', marginBottom: '8px', color: '#0F172A' }}>
-                  Insight / Concern Description <span style={{ color: '#DC2626' }}>*</span>
-                </label>
-                <textarea
-                  rows={5}
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    borderRadius: '10px',
-                    border: '1px solid #CBD5E1',
-                    fontSize: '14px',
-                    backgroundColor: '#FFFFFF',
-                    color: '#000000',
-                    boxSizing: 'border-box',
-                    fontFamily: 'inherit',
-                    outline: 'none'
-                  }}
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="State your feedback, issue, or concern clearly..."
-                  required
-                />
-              </div>
+  
+  {/* 1. Textarea Block */}
+  <div style={{ marginBottom: '20px' }}>
+    <label style={{ display: 'block', fontWeight: 600, fontSize: '14px', marginBottom: '8px', color: '#0F172A' }}>
+      Insight / Concern Description <span style={{ color: '#DC2626' }}>*</span>
+    </label>
+    <textarea
+      rows={5}
+      style={{
+        width: '100%',
+        padding: '12px 14px',
+        borderRadius: '10px',
+        border: '1px solid #CBD5E1',
+        fontSize: '14px',
+        backgroundColor: '#FFFFFF',
+        color: '#000000',
+        boxSizing: 'border-box',
+        fontFamily: 'inherit',
+        outline: 'none'
+      }}
+      value={content}
+      onChange={(e) => setContent(e.target.value)}
+      placeholder="State your feedback, issue, or proposition clearly..."
+      required
+    />
+  </div>
 
-              {/* Priority Select */}
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontWeight: 600, fontSize: '14px', marginBottom: '8px', color: '#0F172A' }}>
-                  Priority Level <span style={{ color: '#DC2626' }}>*</span>
-                </label>
-                <select
-                  value={priority}
-                  onChange={(e) => setPriority(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    borderRadius: '10px',
-                    border: '1px solid #CBD5E1',
-                    fontSize: '14px',
-                    backgroundColor: '#FFFFFF',
-                    color: '#000000',
-                    cursor: 'pointer',
-                    outline: 'none'
-                  }}
-                >
-                  <option value="Low" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>Low — General Feedback / Suggestion</option>
-                  <option value="Medium" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>Medium — Standard Concern Needing Action</option>
-                  <option value="High" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>High — Urgent / Critical Campus Concern</option>
-                </select>
-              </div>
+  {/* 2. Priority Select Dropdown */}
+  <div style={{ marginBottom: '20px' }}>
+    <label style={{ display: 'block', fontWeight: 600, fontSize: '14px', marginBottom: '8px', color: '#0F172A' }}>
+      Priority Level <span style={{ color: '#DC2626' }}>*</span>
+    </label>
+    <select
+      value={priority}
+      onChange={(e) => setPriority(e.target.value)}
+      style={{
+        width: '100%',
+        padding: '12px 14px',
+        borderRadius: '10px',
+        border: '1px solid #CBD5E1',
+        fontSize: '14px',
+        backgroundColor: '#FFFFFF',
+        color: '#000000',
+        cursor: 'pointer',
+        outline: 'none'
+      }}
+    >
+      <option value="Low" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>Low — General Feedback / Suggestion</option>
+      <option value="Medium" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>Medium — Standard Concern Needing Action</option>
+      <option value="High" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>High — Urgent / Critical Campus Concern</option>
+    </select>
+  </div>
 
-              {/* Anonymous Checkbox */}
-              <div style={{ marginBottom: '24px', padding: '12px 14px', backgroundColor: '#F8FAFC', borderRadius: '10px', border: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <input
-                  type="checkbox"
-                  id="anonCheck"
-                  checked={isAnonymous}
-                  onChange={(e) => setIsAnonymous(e.target.checked)}
-                  style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#0F172A' }}
-                />
-                <label htmlFor="anonCheck" style={{ fontSize: '13px', color: '#334155', cursor: 'pointer', fontWeight: 500, userSelect: 'none' }}>
-                  Submit Anonymously (Identity hidden from administrators)
-                </label>
-              </div>
+  {/* 3. Anonymous Checkbox */}
+  <div style={{ marginBottom: '24px', padding: '12px 14px', backgroundColor: '#F8FAFC', borderRadius: '10px', border: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', gap: '10px' }}>
+    <input
+      type="checkbox"
+      id="anonCheck"
+      checked={isAnonymous}
+      onChange={(e) => setIsAnonymous(e.target.checked)}
+      style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#0F172A' }}
+    />
+    <label htmlFor="anonCheck" style={{ fontSize: '13px', color: '#334155', cursor: 'pointer', fontWeight: 500, userSelect: 'none' }}>
+      Submit Anonymously (Identity hidden from administrators)
+    </label>
+  </div>
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                style={{
-                  width: '100%',
-                  backgroundColor: loading ? '#94A3B8' : '#0F172A',
-                  color: '#FFFFFF',
-                  padding: '14px',
-                  borderRadius: '10px',
-                  border: 'none',
-                  fontSize: '15px',
-                  fontWeight: 600,
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 12px rgba(15, 23, 42, 0.15)',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                {loading ? 'Submitting to Portal...' : 'Submit to Student Republic'}
-              </button>
-            </form>
+  {/* 4. Submit Button */}
+  <button
+    type="submit"
+    disabled={loading}
+    style={{
+      width: '100%',
+      backgroundColor: loading ? '#94A3B8' : '#0F172A',
+      color: '#FFFFFF',
+      padding: '14px',
+      borderRadius: '10px',
+      border: 'none',
+      fontSize: '15px',
+      fontWeight: 600,
+      cursor: loading ? 'not-allowed' : 'pointer',
+      boxShadow: '0 4px 12px rgba(15, 23, 42, 0.15)',
+      transition: 'all 0.2s ease'
+    }}
+  >
+    {loading ? 'Submitting to Portal...' : 'Submit Insight to Student Republic'}
+  </button>
+
+</form>
 
             {/* Response Banner */}
             {message && (
