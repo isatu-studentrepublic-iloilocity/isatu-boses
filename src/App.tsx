@@ -7,7 +7,7 @@ export default function App() {
   const [isAnonymous, setIsAnonymous] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -22,35 +22,27 @@ export default function App() {
   }, [])
 
   const checkUserDomain = async (authUser: any) => {
-  if (authUser?.email) {
-    // 1. Extract the domain after the '@' symbol
-    const domain = authUser.email.split('@')[1]?.toLowerCase()
-    
-    // 2. THIS IS THE ARRAY TO EDIT:
-    const validDomains = [
-      'students.isatu.edu.ph'
-    ]
+    if (authUser?.email) {
+      const domain = authUser.email.split('@')[1]?.toLowerCase()
+      const validDomains = ['isatu.edu.ph', 'student.isatu.edu.ph']
 
-    // 3. If the email domain isn't in validDomains, reject it
-    if (!validDomains.includes(domain)) {
-      await supabase.auth.signOut()
-      localStorage.clear()
-      setUser(null)
-      alert(`Access restricted for ${authUser.email}. Please use an official ISAT U account.`)
-      return
+      if (!validDomains.includes(domain)) {
+        await supabase.auth.signOut()
+        localStorage.clear()
+        setUser(null)
+        alert(`Access restricted for ${authUser.email}. Please use an official ISAT U account.`)
+        return
+      }
     }
+    setUser(authUser)
   }
-  setUser(authUser)
-}
 
   const handleGoogleLogin = async () => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: window.location.origin,
-        queryParams: {
-          prompt: 'select_account',
-        },
+        queryParams: { prompt: 'select_account' },
       },
     })
   }
@@ -66,7 +58,7 @@ export default function App() {
     if (!content.trim()) return
 
     setLoading(true)
-    setMessage('')
+    setMessage(null)
 
     const { error } = await supabase.from('insights').insert([
       {
@@ -80,9 +72,9 @@ export default function App() {
     setLoading(false)
 
     if (error) {
-      setMessage(`Error: ${error.message}`)
+      setMessage({ type: 'error', text: `Error: ${error.message}` })
     } else {
-      setMessage('Your insight has been submitted successfully!')
+      setMessage({ type: 'success', text: 'Your insight has been submitted successfully!' })
       setContent('')
       setPriority('Low')
       setIsAnonymous(false)
@@ -90,59 +82,152 @@ export default function App() {
   }
 
   return (
-    <div style={{ maxWidth: '600px', margin: '40px auto', fontFamily: 'sans-serif', padding: '20px' }}>
-      <h1>ISAT U BOSES</h1>
-      <p>Share your insights, concerns, or feedback</p>
+    <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', fontFamily: "'Inter', system-ui, sans-serif", color: '#334155', paddingBottom: '40px' }}>
+      
+      {/* Top Banner Header */}
+      <header style={{ backgroundColor: '#0F172A', borderBottom: '4px solid #D97706', padding: '24px 20px', textAlign: 'center', color: '#FFFFFF', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
+        <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 800, letterSpacing: '1px' }}>ISAT U BOSES</h1>
+        <p style={{ margin: '6px 0 0', color: '#94A3B8', fontSize: '14px' }}>Official Student Voice & Feedback Platform</p>
+      </header>
 
-      {!user ? (
-        <button onClick={handleGoogleLogin} style={{ padding: '10px 20px', cursor: 'pointer' }}>
-          Sign in with ISAT U Google Account
-        </button>
-      ) : (
-        <div>
-          <p>Logged in as: <strong>{user.email}</strong> (<span onClick={handleLogout} style={{ color: 'blue', cursor: 'pointer' }}>Logout</span>)</p>
+      {/* Main Container */}
+      <main style={{ maxWidth: '640px', margin: '30px auto 0', padding: '0 20px' }}>
+        {!user ? (
+          
+          /* Login Card */
+          <div style={{ backgroundColor: '#FFFFFF', borderRadius: '12px', padding: '36px 28px', textAlign: 'center', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.02)', border: '1px solid #E2E8F0' }}>
+            <h2 style={{ margin: '0 0 10px', fontSize: '20px', color: '#0F172A' }}>Welcome, Student!</h2>
+            <p style={{ margin: '0 0 24px', color: '#64748B', fontSize: '14px', lineHeight: '1.5' }}>
+              Please sign in with your official university Google account to submit feedback or raise concerns to the Student Republic.
+            </p>
+            <button
+              onClick={handleGoogleLogin}
+              style={{
+                backgroundColor: '#0F172A',
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '12px 24px',
+                fontSize: '15px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '10px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                transition: 'background-color 0.2s'
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path fill="#FF3D00" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.2 9 5 12 5z"/>
+                <path fill="#4CAF50" d="M12 19c-3 0-5.5-2.2-6.4-5.2L1.9 16.7C3.7 20.4 7.5 23 12 23c2.9 0 5.4-.9 7.3-2.6l-3.5-2.9c-1 .7-2.3 1.5-3.8 1.5z"/>
+                <path fill="#1976D2" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.5 2.9c2.1-1.9 3.4-4.8 3.4-8.8z"/>
+                <path fill="#FFC107" d="M5.6 13.8c-.2-.7-.3-1.4-.3-2.1s.1-1.4.3-2.1L1.9 6.7C.7 9.1 0 11.9 0 14.9s.7 5.8 1.9 8.2l3.7-2.9z"/>
+              </svg>
+              Sign in with ISAT U Google Account
+            </button>
+          </div>
 
-          <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px' }}>Your Student Insight *</label>
-              <textarea
-                rows={5}
-                style={{ width: '100%', padding: '10px' }}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Share what's on your mind..."
-                required
-              />
+        ) : (
+
+          /* Form Card */
+          <div style={{ backgroundColor: '#FFFFFF', borderRadius: '12px', padding: '32px 28px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.02)', border: '1px solid #E2E8F0' }}>
+            
+            {/* User Bar */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid #F1F5F9' }}>
+              <span style={{ fontSize: '13px', color: '#64748B' }}>
+                Signed in as: <strong style={{ color: '#0F172A' }}>{user.email}</strong>
+              </span>
+              <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#DC2626', fontSize: '13px', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}>
+                Logout
+              </button>
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px' }}>Priority *</label>
-              <select value={priority} onChange={(e) => setPriority(e.target.value)} style={{ padding: '8px', width: '100%' }}>
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-              </select>
-            </div>
+            <form onSubmit={handleSubmit}>
+              
+              {/* Insight Text Area */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '14px', marginBottom: '8px', color: '#0F172A' }}>
+                  Your Student Insight / Concern *
+                </label>
+                <textarea
+                  rows={5}
+                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #CBD5E1', fontSize: '14px', boxSizing: 'border-box', outline: 'none', fontFamily: 'inherit' }}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Describe your suggestion, concern, or feedback in detail..."
+                  required
+                />
+              </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label>
+              {/* Priority Dropdown */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '14px', marginBottom: '8px', color: '#0F172A' }}>
+                  Priority Level *
+                </label>
+                <select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #CBD5E1', fontSize: '14px', backgroundColor: '#FFFFFF', cursor: 'pointer' }}
+                >
+                  <option value="Low">Low - General Feedback / Suggestion</option>
+                  <option value="Medium">Medium - Issue Needing Attention</option>
+                  <option value="High">High - Urgent / Critical Concern</option>
+                </select>
+              </div>
+
+              {/* Anonymous Checkbox */}
+              <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <input
                   type="checkbox"
+                  id="anonCheck"
                   checked={isAnonymous}
                   onChange={(e) => setIsAnonymous(e.target.checked)}
-                />{' '}
-                Submit anonymously?
-              </label>
-            </div>
+                  style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#0F172A' }}
+                />
+                <label htmlFor="anonCheck" style={{ fontSize: '14px', color: '#475569', cursor: 'pointer', userSelect: 'none' }}>
+                  Submit anonymously (Hides your identity from admins)
+                </label>
+              </div>
 
-            <button type="submit" disabled={loading} style={{ padding: '10px 20px', cursor: 'pointer' }}>
-              {loading ? 'Submitting...' : 'Submit Insight'}
-            </button>
-          </form>
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  backgroundColor: loading ? '#94A3B8' : '#0F172A',
+                  color: '#FFFFFF',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  transition: 'background-color 0.2s'
+                }}
+              >
+                {loading ? 'Submitting...' : 'Submit Insight'}
+              </button>
+            </form>
 
-          {message && <p style={{ marginTop: '15px', color: message.startsWith('Error') ? 'red' : 'green' }}>{message}</p>}
-        </div>
-      )}
+            {/* Response Alerts */}
+            {message && (
+              <div style={{
+                marginTop: '20px',
+                padding: '12px 16px',
+                borderRadius: '8px',
+                fontSize: '14px',
+                backgroundColor: message.type === 'error' ? '#FEF2F2' : '#F0FDF4',
+                color: message.type === 'error' ? '#991B1B' : '#166534',
+                border: `1px solid ${message.type === 'error' ? '#FCA5A5' : '#86EFAC'}`
+              }}>
+                {message.text}
+              </div>
+            )}
+          </div>
+        )}
+      </main>
     </div>
   )
 }
