@@ -85,7 +85,7 @@ export default function App() {
     <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', fontFamily: "'Inter', system-ui, sans-serif", color: '#334155', paddingBottom: '40px' }}>
       
       {/* Top Banner Header */}
-      <header style={{ backgroundColor: '#0F172A', borderBottom: '4px solid #D97706', padding: '24px 20px', textAlign: 'center', color: '#FFFFFF', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
+      <header style={{ backgroundColor: '#f2f3f5', borderBottom: '4px solid #D97706', padding: '24px 20px', textAlign: 'center', color: '#FFFFFF', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
         <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 800, letterSpacing: '1px' }}>ISAT U BOSES</h1>
         <p style={{ margin: '6px 0 0', color: '#94A3B8', fontSize: '14px' }}>Official Student Voice & Feedback Platform</p>
       </header>
