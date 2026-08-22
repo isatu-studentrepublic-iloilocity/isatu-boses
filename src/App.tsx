@@ -2,12 +2,15 @@ import React, { useState, useEffect, useRef } from 'react'
 import { supabase } from './supabaseClient'
 
 export default function App() {
-  const [content, setContent] = useState('')
+  const [content, setContent] = useState(() => {
+  return localStorage.getItem('draft_content') || ''
+})
   const [priority, setPriority] = useState('Low')
   const [isAnonymous, setIsAnonymous] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  
 
   const isAlertingRef = useRef(false)
 
@@ -26,7 +29,9 @@ export default function App() {
 
           await supabase.auth.signOut()
           sessionStorage.clear()
-          localStorage.clear()
+          // Use specific item removal instead of localStorage.clear() 
+          // so rejected logins don't accidentally wipe unsaved drafts
+          localStorage.removeItem('sb-token') 
           setUser(null)
 
           if (!isAlertingRef.current) {
