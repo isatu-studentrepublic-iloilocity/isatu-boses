@@ -2,17 +2,24 @@ import React, { useState, useEffect, useRef } from 'react'
 import { supabase } from './supabaseClient'
 
 export default function App() {
+  // 1. Load saved draft directly from localStorage on startup
   const [content, setContent] = useState(() => {
-  return localStorage.getItem('draft_content') || ''
-})
+    return localStorage.getItem('draft_content') || ''
+  })
+
   const [priority, setPriority] = useState('Low')
   const [isAnonymous, setIsAnonymous] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
-  
 
   const isAlertingRef = useRef(false)
+
+  // 2. Direct handler to immediately save to localStorage as you type
+  const handleContentChange = (value: string) => {
+    setContent(value)
+    localStorage.setItem('draft_content', value)
+  }
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
@@ -29,9 +36,6 @@ export default function App() {
 
           await supabase.auth.signOut()
           sessionStorage.clear()
-          // Use specific item removal instead of localStorage.clear() 
-          // so rejected logins don't accidentally wipe unsaved drafts
-          localStorage.removeItem('sb-token') 
           setUser(null)
 
           if (!isAlertingRef.current) {
@@ -64,7 +68,6 @@ export default function App() {
   const handleLogout = async () => {
     await supabase.auth.signOut()
     sessionStorage.clear()
-    localStorage.clear()
     setUser(null)
   }
 
@@ -91,13 +94,10 @@ export default function App() {
     } else {
       setMessage({ type: 'success', text: 'Your insight has been submitted successfully!' })
       
-      // 1. Clear input state
+      // Clear draft only after successful submission
       setContent('')
-      
-      // 2. Clear saved draft from localStorage
       localStorage.removeItem('draft_content')
       
-      // 3. Reset form selections
       setPriority('Low')
       setIsAnonymous(false)
     }
@@ -212,8 +212,8 @@ export default function App() {
             
             {/* Authenticated User Status Bar */}
             <div style={{ 
-              display: 'flex', justifyContent: 'center', 
-              textAlign: 'justify', 
+              display: 'flex', 
+              justifyContent: 'space-between', 
               alignItems: 'center', 
               marginBottom: '24px', 
               padding: '12px 16px', 
@@ -243,95 +243,94 @@ export default function App() {
             </div>
 
             <form onSubmit={handleSubmit}>
-  
-  {/* 1. Textarea Block */}
-  <div style={{ marginBottom: '20px' }}>
-    <label style={{ display: 'block', fontWeight: 600, fontSize: '14px', marginBottom: '8px', color: '#0F172A' }}>
-      Insight / Concern Description <span style={{ color: '#DC2626' }}>*</span>
-    </label>
-    <textarea
-      rows={5}
-      style={{
-        width: '100%',
-        padding: '12px 14px',
-        borderRadius: '10px',
-        border: '1px solid #CBD5E1',
-        fontSize: '14px',
-        backgroundColor: '#FFFFFF',
-        color: '#000000',
-        boxSizing: 'border-box',
-        fontFamily: 'inherit',
-        outline: 'none'
-      }}
-      value={content}
-      onChange={(e) => setContent(e.target.value)}
-      placeholder="State your feedback, issue, or proposition clearly..."
-      required
-    />
-  </div>
+              
+              {/* Textarea */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '14px', marginBottom: '8px', color: '#0F172A' }}>
+                  Insight / Concern Description <span style={{ color: '#DC2626' }}>*</span>
+                </label>
+                <textarea
+                  rows={5}
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    borderRadius: '10px',
+                    border: '1px solid #CBD5E1',
+                    fontSize: '14px',
+                    backgroundColor: '#FFFFFF',
+                    color: '#000000',
+                    boxSizing: 'border-box',
+                    fontFamily: 'inherit',
+                    outline: 'none'
+                  }}
+                  value={content}
+                  onChange={(e) => handleContentChange(e.target.value)}
+                  placeholder="State your feedback, issue, or proposition clearly..."
+                  required
+                />
+              </div>
 
-  {/* 2. Priority Select Dropdown */}
-  <div style={{ marginBottom: '20px' }}>
-    <label style={{ display: 'block', fontWeight: 600, fontSize: '14px', marginBottom: '8px', color: '#0F172A' }}>
-      Priority Level <span style={{ color: '#DC2626' }}>*</span>
-    </label>
-    <select
-      value={priority}
-      onChange={(e) => setPriority(e.target.value)}
-      style={{
-        width: '100%',
-        padding: '12px 14px',
-        borderRadius: '10px',
-        border: '1px solid #CBD5E1',
-        fontSize: '14px',
-        backgroundColor: '#FFFFFF',
-        color: '#000000',
-        cursor: 'pointer',
-        outline: 'none'
-      }}
-    >
-      <option value="Low" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>Low — General Feedback / Suggestion</option>
-      <option value="Medium" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>Medium — Standard Concern Needing Action</option>
-      <option value="High" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>High — Urgent / Critical Campus Concern</option>
-    </select>
-  </div>
+              {/* Priority Select */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '14px', marginBottom: '8px', color: '#0F172A' }}>
+                  Priority Level <span style={{ color: '#DC2626' }}>*</span>
+                </label>
+                <select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    borderRadius: '10px',
+                    border: '1px solid #CBD5E1',
+                    fontSize: '14px',
+                    backgroundColor: '#FFFFFF',
+                    color: '#000000',
+                    cursor: 'pointer',
+                    outline: 'none'
+                  }}
+                >
+                  <option value="Low" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>Low — General Feedback / Suggestion</option>
+                  <option value="Medium" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>Medium — Standard Concern Needing Action</option>
+                  <option value="High" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>High — Urgent / Critical Campus Concern</option>
+                </select>
+              </div>
 
-  {/* 3. Anonymous Checkbox */}
-  <div style={{ marginBottom: '24px', padding: '12px 14px', backgroundColor: '#F8FAFC', borderRadius: '10px', border: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', gap: '10px' }}>
-    <input
-      type="checkbox"
-      id="anonCheck"
-      checked={isAnonymous}
-      onChange={(e) => setIsAnonymous(e.target.checked)}
-      style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#0F172A' }}
-    />
-    <label htmlFor="anonCheck" style={{ fontSize: '13px', color: '#334155', cursor: 'pointer', fontWeight: 500, userSelect: 'none' }}>
-      Submit Anonymously (Identity hidden from administrators)
-    </label>
-  </div>
+              {/* Anonymous Checkbox */}
+              <div style={{ marginBottom: '24px', padding: '12px 14px', backgroundColor: '#F8FAFC', borderRadius: '10px', border: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <input
+                  type="checkbox"
+                  id="anonCheck"
+                  checked={isAnonymous}
+                  onChange={(e) => setIsAnonymous(e.target.checked)}
+                  style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#0F172A' }}
+                />
+                <label htmlFor="anonCheck" style={{ fontSize: '13px', color: '#334155', cursor: 'pointer', fontWeight: 500, userSelect: 'none' }}>
+                  Submit Anonymously (Identity hidden from administrators)
+                </label>
+              </div>
 
-  {/* 4. Submit Button */}
-  <button
-    type="submit"
-    disabled={loading}
-    style={{
-      width: '100%',
-      backgroundColor: loading ? '#94A3B8' : '#0F172A',
-      color: '#FFFFFF',
-      padding: '14px',
-      borderRadius: '10px',
-      border: 'none',
-      fontSize: '15px',
-      fontWeight: 600,
-      cursor: loading ? 'not-allowed' : 'pointer',
-      boxShadow: '0 4px 12px rgba(15, 23, 42, 0.15)',
-      transition: 'all 0.2s ease'
-    }}
-  >
-    {loading ? 'Submitting to Portal...' : 'Submit Insight to Student Republic'}
-  </button>
-
-</form>
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  backgroundColor: loading ? '#94A3B8' : '#0F172A',
+                  color: '#FFFFFF',
+                  padding: '14px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 4px 12px rgba(15, 23, 42, 0.15)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {loading ? 'Submitting to Portal...' : 'Submit Insight to Student Republic'}
+              </button>
+            </form>
 
             {/* Response Banner */}
             {message && (
@@ -354,7 +353,7 @@ export default function App() {
 
       {/* Footer Branding */}
       <footer style={{ textAlign: 'center', marginTop: '40px', color: '#94A3B8', fontSize: '12px' }}>
-        ISAT U Student Republic — Iloilo City Campus Portal
+        Iloilo Science and Technology University — Student Republic Portal
       </footer>
     </div>
   )
