@@ -178,7 +178,7 @@ export default function App() {
               {/* Textarea */}
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', fontWeight: 600, fontSize: '14px', marginBottom: '8px', color: '#0F172A' }}>
-                  Your Student Insight / Concern *
+                  Your Student Insight / Concern 
                 </label>
                 <textarea
                   rows={5}
@@ -203,7 +203,7 @@ export default function App() {
               {/* Priority Select */}
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', fontWeight: 600, fontSize: '14px', marginBottom: '8px', color: '#0F172A' }}>
-                  Priority Level *
+                  Priority Level 
                 </label>
                 <select
                   value={priority}
