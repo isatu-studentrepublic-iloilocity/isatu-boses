@@ -200,8 +200,8 @@ export default function App() {
             
             {/* Authenticated User Status Bar */}
             <div style={{ 
-              display: 'flex', 
-              justify: 'space-between', 
+              display: 'flex', justifyContent: 'center', 
+              textAlign: 'justify', 
               alignItems: 'center', 
               marginBottom: '24px', 
               padding: '12px 16px', 
