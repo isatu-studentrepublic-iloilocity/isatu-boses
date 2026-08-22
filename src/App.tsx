@@ -253,7 +253,7 @@ export default function App() {
                   }}
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  placeholder="State your feedback, issue, or proposition clearly..."
+                  placeholder="State your feedback, issue, or concern clearly..."
                   required
                 />
               </div>
@@ -316,7 +316,7 @@ export default function App() {
                   transition: 'all 0.2s ease'
                 }}
               >
-                {loading ? 'Submitting to Portal...' : 'Submit Insight to Student Republic'}
+                {loading ? 'Submitting to Portal...' : 'Submit to Student Republic'}
               </button>
             </form>
 
@@ -341,7 +341,7 @@ export default function App() {
 
       {/* Footer Branding */}
       <footer style={{ textAlign: 'center', marginTop: '40px', color: '#94A3B8', fontSize: '12px' }}>
-        Iloilo Science and Technology University — Student Republic Portal
+        ISAT U Student Republic — Iloilo City Campus Portal
       </footer>
     </div>
   )
