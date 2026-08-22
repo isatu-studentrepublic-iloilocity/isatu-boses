@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef} from 'react'
 import { supabase } from './supabaseClient'
 
 export default function App() {
@@ -10,17 +10,37 @@ export default function App() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      checkUserDomain(session?.user ?? null)
-    })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      const authUser = session?.user ?? null
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      checkUserDomain(session?.user ?? null)
+      if (authUser?.email) {
+        const domain = authUser.email.split('@')[1]?.toLowerCase()
+        const validDomains = ['isatu.edu.ph', 'student.isatu.edu.ph', 'students.isatu.edu.ph']
+
+        if (!validDomains.includes(domain)) {
+          // Immediately sign out and clear session
+          await supabase.auth.signOut()
+          localStorage.clear()
+          setUser(null)
+
+          // Show alert only once
+          if (!isAlertingRef.current) {
+            isAlertingRef.current = true
+            alert(`Access restricted for ${authUser.email}. Please select an official ISAT U account.`)
+            setTimeout(() => {
+              isAlertingRef.current = false
+            }, 1000)
+          }
+          return
+        }
+      }
+
+      setUser(authUser)
     })
 
     return () => subscription.unsubscribe()
   }, [])
-
+  
   const checkUserDomain = async (authUser: any) => {
     if (authUser?.email) {
       const domain = authUser.email.split('@')[1]?.toLowerCase()
