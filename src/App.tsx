@@ -22,20 +22,26 @@ export default function App() {
   }, [])
 
   const checkUserDomain = async (authUser: any) => {
-    if (authUser?.email) {
-      const domain = authUser.email.split('@')[1]?.toLowerCase()
-      const validDomains = ['isatu.edu.ph', 'student.isatu.edu.ph']
+  if (authUser?.email) {
+    // 1. Extract the domain after the '@' symbol
+    const domain = authUser.email.split('@')[1]?.toLowerCase()
+    
+    // 2. THIS IS THE ARRAY TO EDIT:
+    const validDomains = [
+      'students.isatu.edu.ph'
+    ]
 
-      if (!validDomains.includes(domain)) {
-        await supabase.auth.signOut()
-        localStorage.clear()
-        setUser(null)
-        alert('Access restricted: Please select your official ISAT U Google account (@isatu.edu.ph or @student.isatu.edu.ph).')
-        return
-      }
+    // 3. If the email domain isn't in validDomains, reject it
+    if (!validDomains.includes(domain)) {
+      await supabase.auth.signOut()
+      localStorage.clear()
+      setUser(null)
+      alert(`Access restricted for ${authUser.email}. Please use an official ISAT U account.`)
+      return
     }
-    setUser(authUser)
   }
+  setUser(authUser)
+}
 
   const handleGoogleLogin = async () => {
     await supabase.auth.signInWithOAuth({
