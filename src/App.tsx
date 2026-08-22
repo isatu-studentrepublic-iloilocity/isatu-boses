@@ -23,13 +23,14 @@ export default function App() {
 
   const checkUserDomain = async (authUser: any) => {
     if (authUser?.email) {
-      const domain = authUser.email.split('@')[1]
+      const domain = authUser.email.split('@')[1]?.toLowerCase()
       const validDomains = ['isatu.edu.ph', 'student.isatu.edu.ph']
 
       if (!validDomains.includes(domain)) {
         await supabase.auth.signOut()
-        alert('Access restricted: Please use an official ISAT U Google account.')
+        localStorage.clear()
         setUser(null)
+        alert('Access restricted: Please select your official ISAT U Google account (@isatu.edu.ph or @student.isatu.edu.ph).')
         return
       }
     }
@@ -47,8 +48,12 @@ export default function App() {
       },
     })
   }
-  
-  const handleLogout = () => supabase.auth.signOut()
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    localStorage.clear()
+    setUser(null)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
