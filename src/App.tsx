@@ -126,9 +126,9 @@ export default function App() {
           
           /* Login Card */
           <div style={{ backgroundColor: '#FFFFFF', borderRadius: '12px', padding: '36px 28px', textAlign: 'center', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.02)', border: '1px solid #E2E8F0' }}>
-            <h2 style={{ margin: '0 0 10px', fontSize: '20px', color: '#0F172A' }}>Welcome, Student!</h2>
+            <h2 style={{ margin: '0 0 10px', fontSize: '20px', color: '#0F172A' }}>Welcome, Tradean!</h2>
             <p style={{ margin: '0 0 24px', color: '#64748B', fontSize: '14px', lineHeight: '1.5' }}>
-              Please sign in with your official university Google account to submit feedback or raise concerns to the Student Republic.
+              Please sign in with your official ISAT university email account to submit feedback or raise concerns to the ISAT U - Student Republic.
             </p>
             <button
               onClick={handleGoogleLogin}
