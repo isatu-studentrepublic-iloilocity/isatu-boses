@@ -60,10 +60,11 @@ export default function App() {
   }
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
-    localStorage.clear()
-    setUser(null)
-  }
+  await supabase.auth.signOut()
+  sessionStorage.clear()
+  localStorage.clear()
+  setUser(null)
+}
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
