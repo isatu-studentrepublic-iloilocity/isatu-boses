@@ -21,6 +21,31 @@ export default function App() {
     localStorage.setItem('draft_content', value)
   }
 
+  // 3. Tab-Recovery Protection (Logs user out if tab is reopened with Ctrl+Shift+T)
+  useEffect(() => {
+    const checkSessionFreshness = async () => {
+      // Detect if page was reloaded via F5 / Ctrl+R
+      const navEntries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[]
+      const isReload = navEntries.length > 0 && navEntries[0].type === 'reload'
+
+      // Detect if returning from Google OAuth redirect
+      const isAuthCallback =
+        window.location.hash.includes('access_token') ||
+        window.location.hash.includes('error') ||
+        window.location.search.includes('code=')
+
+      // If NOT a reload and NOT an auth callback, force logout (handles Ctrl+Shift+T)
+      if (!isReload && !isAuthCallback) {
+        sessionStorage.clear()
+        await supabase.auth.signOut()
+        setUser(null)
+      }
+    }
+
+    checkSessionFreshness()
+  }, [])
+
+  // 4. Supabase Auth Listener
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       const authUser = session?.user ?? null
