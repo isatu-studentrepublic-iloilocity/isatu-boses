@@ -1,13 +1,106 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ISAT U SR:BOSES | Student Voice Portal</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ISAT U BOSES — Student Feedback Portal</title>
+  <link rel="stylesheet" href="index.css" />
+  <!-- Supabase JS Client via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <!-- Top Gold Stripe -->
+  <div class="gold-stripe"></div>
+
+  <!-- Header -->
+  <header class="main-header">
+    <div class="header-content">
+      <img src="/logo.png" alt="ISAT U SR Logo" class="logo" id="header-logo" />
+      <div class="header-text">
+        <span class="badge">ILOILO CITY CAMPUS — STUDENT REPUBLIC</span>
+        <h1>ISAT U BOSES</h1>
+        <p>Official Student Feedback & Concern Portal</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container">
+
+    <!-- Unauthenticated: Login Card -->
+    <div id="login-card" class="card text-center" style="display: none;">
+      <div class="card-top-bar"></div>
+      <div class="icon-wrapper">
+        <svg width="24" height="24" fill="none" stroke="#0F172A" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M12 11c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+        </svg>
+      </div>
+      <h2>Student Authentication Required</h2>
+      <p class="subtext">
+        Please sign in using your official university Google account (<code>@students.isatu.edu.ph</code>) to access the submission portal.
+      </p>
+      <button id="btn-google-login" class="btn btn-primary">
+        <svg width="20" height="20" viewBox="0 0 24 24">
+          <path fill="#FF3D00" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.2 9 5 12 5z"/>
+          <path fill="#4CAF50" d="M12 19c-3 0-5.5-2.2-6.4-5.2L1.9 16.7C3.7 20.4 7.5 23 12 23c2.9 0 5.4-.9 7.3-2.6l-3.5-2.9c-1 .7-2.3 1.5-3.8 1.5z"/>
+          <path fill="#1976D2" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.5 2.9c2.1-1.9 3.4-4.8 3.4-8.8z"/>
+          <path fill="#FFC107" d="M5.6 13.8c-.2-.7-.3-1.4-.3-2.1s.1-1.4.3-2.1L1.9 6.7C.7 9.1 0 11.9 0 14.9s.7 5.8 1.9 8.2l3.7-2.9z"/>
+        </svg>
+        Sign in with ISAT U Google Account
+      </button>
+    </div>
+
+    <!-- Authenticated: Form Card -->
+    <div id="form-card" class="card" style="display: none;">
+      
+      <!-- Status Bar -->
+      <div class="user-status-bar">
+        <div class="status-indicator">
+          <span class="green-dot"></span>
+          <span class="user-email-text"><strong id="user-email"></strong></span>
+        </div>
+        <button id="btn-logout" class="btn-link">Sign Out</button>
+      </div>
+
+      <!-- Submission Form -->
+      <form id="insight-form">
+        <div class="form-group">
+          <label for="content">Insight / Concern Description <span class="required">*</span></label>
+          <textarea id="content" rows="5" placeholder="State your feedback, issue, or proposition clearly..." required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="priority">Priority Level <span class="required">*</span></label>
+          <select id="priority">
+            <option value="Low">Low — General Feedback / Suggestion</option>
+            <option value="Medium">Medium — Standard Concern Needing Action</option>
+            <option value="High">High — Urgent / Critical Campus Concern</option>
+          </select>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <input type="checkbox" id="anonCheck" />
+          <label for="anonCheck">Submit Anonymously (Identity hidden from administrators)</label>
+        </div>
+
+        <button type="submit" id="btn-submit" class="btn btn-primary full-width">
+          Submit Insight to Student Republic
+        </button>
+      </form>
+
+      <!-- Response Message Banner -->
+      <div id="response-message" class="message-banner" style="display: none;"></div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    Iloilo Science and Technology University — Student Republic Portal
+  </footer>
+
+  <script src="app.js"></script>
+</body>
 </html>
