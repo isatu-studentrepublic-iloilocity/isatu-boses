@@ -2,7 +2,7 @@
 const SUPABASE_URL = 'https://gcsqmsdzwinfltqcoidb.supabase.co'
 const SUPABASE_ANON_KEY = 'sb_publishable_hUQg8acVn9ES_bK45q-urg_wO2b4lKu'
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
 // 2. DOM Elements
 const loginCard = document.getElementById('login-card')
