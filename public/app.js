@@ -22,36 +22,22 @@ let currentUser = null
 let isAlerting = false
 
 // Hide broken logo automatically
-headerLogo.addEventListener('error', () => {
-  headerLogo.style.display = 'none'
-})
+if (headerLogo) {
+  headerLogo.addEventListener('error', () => {
+    headerLogo.style.display = 'none'
+  })
+}
 
 // 3. Draft Auto-Save System
-contentEl.value = localStorage.getItem('draft_content') || ''
-contentEl.addEventListener('input', (e) => {
-  localStorage.setItem('draft_content', e.target.value)
-})
-
-// 4. Tab-Recovery Protection (Logs out on Ctrl+Shift+T)
-async function checkSessionFreshness() {
-  const navEntries = performance.getEntriesByType('navigation')
-  const isReload = navEntries.length > 0 && navEntries[0].type === 'reload'
-
-  const isAuthCallback =
-    window.location.hash.includes('access_token') ||
-    window.location.hash.includes('error') ||
-    window.location.search.includes('code=')
-
-  if (!isReload && !isAuthCallback) {
-    sessionStorage.clear()
-    await supabase.auth.signOut()
-    currentUser = null
-  }
+if (contentEl) {
+  contentEl.value = localStorage.getItem('draft_content') || ''
+  contentEl.addEventListener('input', (e) => {
+    localStorage.setItem('draft_content', e.target.value)
+  })
 }
-checkSessionFreshness()
 
-// 5. Auth Listener
-supabase.auth.onAuthStateChange(async (_event, session) => {
+// 4. Auth Listener
+supabaseClient.auth.onAuthStateChange(async (_event, session) => {
   const authUser = session?.user ?? null
 
   if (authUser?.email) {
@@ -63,7 +49,7 @@ supabase.auth.onAuthStateChange(async (_event, session) => {
         window.history.replaceState(null, '', window.location.pathname)
       }
 
-      await supabase.auth.signOut()
+      await supabaseClient.auth.signOut()
       sessionStorage.clear()
       currentUser = null
       renderUI()
@@ -94,9 +80,9 @@ function renderUI() {
   }
 }
 
-// 6. Auth Handlers
+// 5. Auth Handlers
 btnGoogleLogin.addEventListener('click', async () => {
-  await supabase.auth.signInWithOAuth({
+  await supabaseClient.auth.signInWithOAuth({
     provider: 'google',
     options: {
       redirectTo: window.location.origin,
@@ -106,13 +92,13 @@ btnGoogleLogin.addEventListener('click', async () => {
 })
 
 btnLogout.addEventListener('click', async () => {
-  await supabase.auth.signOut()
+  await supabaseClient.auth.signOut()
   sessionStorage.clear()
   currentUser = null
   renderUI()
 })
 
-// 7. Form Submission Handler
+// 6. Form Submission Handler
 insightForm.addEventListener('submit', async (e) => {
   e.preventDefault()
 
@@ -126,7 +112,7 @@ insightForm.addEventListener('submit', async (e) => {
   btnSubmit.textContent = 'Submitting to Portal...'
   messageEl.style.display = 'none'
 
-  const { error } = await supabase.from('insights').insert([
+  const { error } = await supabaseClient.from('insights').insert([
     {
       content,
       priority,
