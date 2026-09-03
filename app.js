@@ -4,6 +4,18 @@ const SUPABASE_ANON_KEY = 'sb_publishable_hUQg8acVn9ES_bK45q-urg_wO2b4lKu'
 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
+document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+document.addEventListener('keydown', (e) => {
+  if (
+    e.key === 'F12' || 
+    (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) ||
+    (e.ctrlKey && ['u', 's'].includes(e.key.toLowerCase()))
+  ) {
+    e.preventDefault();
+  }
+});
+
 // 2. DOM Elements
 const loginCard = document.getElementById('login-card')
 const formCard = document.getElementById('form-card')
