@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Management Portal — ISAT U BOSES</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="gold-stripe"></div>
+  <header class="main-header">
+    <div class="header-content">
+      <div class="header-text">
+        <span class="badge">ADMIN DASHBOARD</span>
+        <h1>ISAT U BOSES Management</h1>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="max-width: 900px;">
+    <div id="auth-check" class="card text-center">
+      <h2>Verifying Admin Access...</h2>
+    </div>
+
+    <div id="admin-panel" class="card" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="margin:0;">Submitted Student Insights</h2>
+        <button id="logout-btn" class="btn-link">Sign Out</button>
+      </div>
+
+      <div id="insights-list">Loading submissions...</div>
+    </div>
+  </main>
+
+  <script>
+    // Initialize Supabase
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function initAdmin() {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Fetch insights - Supabase RLS will block non-admins
+      const { data: insights, error } = await supabase
+        .from('insights')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error || !insights) {
+        document.getElementById('auth-check').innerHTML = `
+          <h2 style="color: #dc2626;">Access Denied</h2>
+          <p class="subtext">Your email (${session.user.email}) is not authorized as an admin.</p>
+          <a href="index.html" class="btn">Return to Student Portal</a>
+        `;
+        return;
+      }
+
+      // Hide loading screen and display panel
+      document.getElementById('auth-check').style.display = 'none';
+      document.getElementById('admin-panel').style.display = 'block';
+
+      renderInsights(insights);
+    }
+
+    function renderInsights(list) {
+      const container = document.getElementById('insights-list');
+      if (list.length === 0) {
+        container.innerHTML = '<p class="subtext">No insights submitted yet.</p>';
+        return;
+      }
+
+      container.innerHTML = list.map(item => `
+        <div style="border: 1px solid #E2E8F0; padding: 16px; border-radius: 10px; margin-bottom: 12px; background: #F8FAFC;">
+          <div style="display:flex; justify-content:space-between; margin-bottom: 8px;">
+            <strong style="color: #D97706;">${item.priority || 'General'}</strong>
+            <small style="color: #64748B;">${new Date(item.created_at).toLocaleString()}</small>
+          </div>
+          <p style="margin: 0 0 8px 0; font-size: 14px; line-height: 1.5;">${item.content}</p>
+          <small style="color: #475569;">User ID: ${item.user_id}</small>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = 'index.html';
+    });
+
+    initAdmin();
+  </script>
+</body>
+</html>
